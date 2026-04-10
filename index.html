@@ -14,13 +14,32 @@
           <p>Create minimalist gradient wallpapers and export for iOS or Android.</p>
         </header>
 
-        <div class="canvas-wrap">
-          <canvas id="previewCanvas" width="1290" height="2796" aria-label="Gradient preview canvas"></canvas>
-          <div id="previewOverlay" class="preview-overlay hidden" aria-hidden="true">
-            <div class="status-zone"></div>
-            <div class="notch-mask"></div>
-            <div class="safe-zone safe-zone-top"></div>
-            <div class="safe-zone safe-zone-bottom"></div>
+        <div class="preview-stage">
+          <div class="phone-frame">
+            <div class="canvas-wrap">
+              <canvas id="previewCanvas" width="1290" height="2796" aria-label="Gradient preview canvas"></canvas>
+              <div class="lockscreen-ui" aria-hidden="true">
+                <div class="status-row">
+                  <span>vodafone UK</span>
+                  <span>4G ⌁ 27%</span>
+                </div>
+                <div class="clock-block">
+                  <p>Tue 13 Jan</p>
+                  <h2>18:18</h2>
+                </div>
+                <div class="bottom-actions">
+                  <button type="button" tabindex="-1">🔦</button>
+                  <button type="button" tabindex="-1">📷</button>
+                </div>
+                <div class="home-bar"></div>
+              </div>
+              <div id="previewOverlay" class="preview-overlay hidden" aria-hidden="true">
+                <div class="status-zone"></div>
+                <div class="notch-mask"></div>
+                <div class="safe-zone safe-zone-top"></div>
+                <div class="safe-zone safe-zone-bottom"></div>
+              </div>
+            </div>
           </div>
         </div>
 
