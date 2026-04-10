@@ -11,6 +11,9 @@ const customWidth = document.getElementById('customWidth');
 const customHeight = document.getElementById('customHeight');
 const stopsContainer = document.getElementById('stopsContainer');
 const addStopBtn = document.getElementById('addStopBtn');
+const overlayProfile = document.getElementById('overlayProfile');
+const overlayToggle = document.getElementById('overlayToggle');
+const previewOverlay = document.getElementById('previewOverlay');
 
 const randomizeBtn = document.getElementById('randomizeBtn');
 const swapBtn = document.getElementById('swapBtn');
@@ -21,6 +24,13 @@ const palettes = {
   forest: ['#022c22', '#166534', '#86efac'],
   sunset: ['#7c2d12', '#f97316', '#fef08a'],
   mono: ['#111827', '#374151', '#d1d5db'],
+};
+
+const overlayProfileBySize = {
+  '1290x2796': 'iphone-pro-max',
+  '1179x2556': 'iphone-pro',
+  '1440x3200': 'android-tall',
+  '1080x2400': 'android-tall',
 };
 
 const MIN_STOPS = 2;
@@ -189,6 +199,44 @@ function getExportResolution() {
   return { width, height };
 }
 
+function getSuggestedOverlayProfile(width, height) {
+  if (!width || !height) {
+    return 'none';
+  }
+
+  const exact = overlayProfileBySize[`${width}x${height}`];
+  if (exact) {
+    return exact;
+  }
+
+  const ratio = height / width;
+  if (ratio >= 2.2) {
+    return 'android-tall';
+  }
+
+  if (ratio >= 2.14) {
+    return 'iphone-pro-max';
+  }
+
+  return 'none';
+}
+
+function syncOverlayToExportSize() {
+  const { width, height } = getExportResolution();
+  overlayProfile.value = getSuggestedOverlayProfile(width, height);
+  previewOverlay.dataset.profile = overlayProfile.value;
+}
+
+function updateOverlayVisibility() {
+  const isVisible = overlayToggle.checked && overlayProfile.value !== 'none';
+  previewOverlay.classList.toggle('hidden', !isVisible);
+}
+
+function applyOverlaySelection() {
+  previewOverlay.dataset.profile = overlayProfile.value;
+  updateOverlayVisibility();
+}
+
 function exportPng() {
   const { width, height } = getExportResolution();
   const exportCanvas = document.createElement('canvas');
@@ -298,9 +346,27 @@ swapBtn.addEventListener('click', () => {
 
 exportSize.addEventListener('change', () => {
   customSizeControls.classList.toggle('hidden', exportSize.value !== 'custom');
+  syncOverlayToExportSize();
+  updateOverlayVisibility();
 });
+
+[customWidth, customHeight].forEach((input) => {
+  input.addEventListener('input', () => {
+    if (exportSize.value !== 'custom') {
+      return;
+    }
+
+    syncOverlayToExportSize();
+    updateOverlayVisibility();
+  });
+});
+
+overlayProfile.addEventListener('change', applyOverlaySelection);
+overlayToggle.addEventListener('change', updateOverlayVisibility);
 
 exportBtn.addEventListener('click', exportPng);
 
 renderStopControls();
+syncOverlayToExportSize();
+applyOverlaySelection();
 renderPreview();
