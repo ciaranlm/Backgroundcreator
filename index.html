@@ -62,16 +62,14 @@
           </select>
         </div>
 
-        <div class="control-group">
-          <label for="exportSize">Export Target</label>
-          <select id="exportSize">
-            <option value="1290x2796">iOS Pro Max — 1290×2796</option>
-            <option value="1179x2556">iOS Pro — 1179×2556</option>
-            <option value="1440x3200">Android QHD+ — 1440×3200</option>
-            <option value="1080x2400">Android FHD+ — 1080×2400</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
+        <fieldset class="control-group export-targets" id="exportTargets">
+          <legend>Export Targets</legend>
+          <label class="target-option"><input type="checkbox" value="1290x2796" checked /> iOS Pro Max — 1290×2796</label>
+          <label class="target-option"><input type="checkbox" value="1179x2556" /> iOS Pro — 1179×2556</label>
+          <label class="target-option"><input type="checkbox" value="1440x3200" /> Android QHD+ — 1440×3200</label>
+          <label class="target-option"><input type="checkbox" value="1080x2400" /> Android FHD+ — 1080×2400</label>
+          <label class="target-option"><input type="checkbox" value="custom" /> Custom</label>
+        </fieldset>
 
         <div class="control-group">
           <label for="overlayProfile">Preview Overlay</label>
@@ -99,10 +97,18 @@
           </div>
         </div>
 
-        <button id="exportBtn" class="export" type="button">Export PNG</button>
+                <div class="control-group inline-control">
+          <label for="zipToggle">Export as ZIP (optional)</label>
+          <input id="zipToggle" type="checkbox" />
+        </div>
+
+        <p id="exportStatus" class="export-status" aria-live="polite"></p>
+
+        <button id="exportBtn" class="export" type="button">Export PNG(s)</button>
       </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

@@ -5,10 +5,12 @@ const gradientType = document.getElementById('gradientType');
 const angle = document.getElementById('angle');
 const angleValue = document.getElementById('angleValue');
 const palettePreset = document.getElementById('palettePreset');
-const exportSize = document.getElementById('exportSize');
+const exportTargets = document.getElementById('exportTargets');
 const customSizeControls = document.getElementById('customSizeControls');
 const customWidth = document.getElementById('customWidth');
 const customHeight = document.getElementById('customHeight');
+const zipToggle = document.getElementById('zipToggle');
+const exportStatus = document.getElementById('exportStatus');
 const stopsContainer = document.getElementById('stopsContainer');
 const addStopBtn = document.getElementById('addStopBtn');
 const overlayProfile = document.getElementById('overlayProfile');
@@ -18,6 +20,13 @@ const previewOverlay = document.getElementById('previewOverlay');
 const randomizeBtn = document.getElementById('randomizeBtn');
 const swapBtn = document.getElementById('swapBtn');
 const exportBtn = document.getElementById('exportBtn');
+
+const EXPORT_PRESETS = {
+  '1290x2796': { width: 1290, height: 2796 },
+  '1179x2556': { width: 1179, height: 2556 },
+  '1440x3200': { width: 1440, height: 3200 },
+  '1080x2400': { width: 1080, height: 2400 },
+};
 
 const palettes = {
   midnight: ['#020617', '#1e3a8a', '#38bdf8'],
@@ -34,6 +43,7 @@ const overlayProfileBySize = {
 };
 
 const MIN_STOPS = 2;
+const ZIP_LIB_AVAILABLE = typeof window.JSZip !== 'undefined';
 
 let gradientStops = [
   { position: 0, color: '#0f172a' },
@@ -187,16 +197,42 @@ function applyPalette(name) {
   }
 }
 
-function getExportResolution() {
-  if (exportSize.value === 'custom') {
-    return {
-      width: Math.max(320, Number(customWidth.value || 1440)),
-      height: Math.max(320, Number(customHeight.value || 3200)),
-    };
+function getCustomResolution() {
+  const width = Number(customWidth.value);
+  const height = Number(customHeight.value);
+
+  if (!Number.isInteger(width) || !Number.isInteger(height)) {
+    return null;
   }
 
-  const [width, height] = exportSize.value.split('x').map(Number);
-  return { width, height };
+  if (width < 320 || width > 8000 || height < 320 || height > 8000) {
+    return null;
+  }
+
+  return { width, height, key: 'custom' };
+}
+
+function getSelectedResolutions() {
+  const selected = [];
+  const checkedTargets = exportTargets.querySelectorAll('input[type="checkbox"]:checked');
+
+  checkedTargets.forEach((target) => {
+    const value = target.value;
+    if (value === 'custom') {
+      const custom = getCustomResolution();
+      if (custom) {
+        selected.push(custom);
+      }
+      return;
+    }
+
+    const preset = EXPORT_PRESETS[value];
+    if (preset) {
+      selected.push({ ...preset, key: value });
+    }
+  });
+
+  return selected;
 }
 
 function getSuggestedOverlayProfile(width, height) {
@@ -222,8 +258,9 @@ function getSuggestedOverlayProfile(width, height) {
 }
 
 function syncOverlayToExportSize() {
-  const { width, height } = getExportResolution();
-  overlayProfile.value = getSuggestedOverlayProfile(width, height);
+  const resolutions = getSelectedResolutions();
+  const primary = resolutions[0] || EXPORT_PRESETS['1290x2796'];
+  overlayProfile.value = getSuggestedOverlayProfile(primary.width, primary.height);
   previewOverlay.dataset.profile = overlayProfile.value;
 }
 
@@ -237,25 +274,118 @@ function applyOverlaySelection() {
   updateOverlayVisibility();
 }
 
-function exportPng() {
-  const { width, height } = getExportResolution();
+function createFilename(width, height, dateTag) {
+  return `minimal-gradient-${width}x${height}-${dateTag}.png`;
+}
+
+function setExportStatus(message, tone = 'muted') {
+  exportStatus.textContent = message;
+  exportStatus.dataset.tone = tone;
+}
+
+function blobFromCanvas(exportCanvas) {
+  return new Promise((resolve) => {
+    exportCanvas.toBlob((blob) => {
+      resolve(blob || null);
+    }, 'image/png');
+  });
+}
+
+function downloadBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function renderResolution(width, height) {
   const exportCanvas = document.createElement('canvas');
   exportCanvas.width = width;
   exportCanvas.height = height;
   const exportContext = exportCanvas.getContext('2d');
-
   drawGradient(exportContext, width, height);
+  return blobFromCanvas(exportCanvas);
+}
 
-  exportCanvas.toBlob((blob) => {
-    if (!blob) return;
+function updateExportUiState() {
+  const customChecked = Boolean(exportTargets.querySelector('input[value="custom"]')?.checked);
+  customSizeControls.classList.toggle('hidden', !customChecked);
 
-    const link = document.createElement('a');
-    const dateTag = new Date().toISOString().slice(0, 10);
-    link.download = `minimal-gradient-${width}x${height}-${dateTag}.png`;
-    link.href = URL.createObjectURL(blob);
-    link.click();
-    URL.revokeObjectURL(link.href);
-  }, 'image/png');
+  const customValid = !customChecked || Boolean(getCustomResolution());
+  const selectedResolutions = getSelectedResolutions();
+  const hasTargets = selectedResolutions.length > 0;
+
+  exportBtn.disabled = !hasTargets || !customValid;
+
+  if (!hasTargets) {
+    setExportStatus('Select at least one export target to enable batch export.');
+  } else if (!customValid) {
+    setExportStatus('Custom size must be whole numbers between 320 and 8000.');
+  } else if (zipToggle.checked && !ZIP_LIB_AVAILABLE) {
+    setExportStatus('ZIP library unavailable. Exports will download one-by-one.', 'warning');
+  } else if (zipToggle.checked && ZIP_LIB_AVAILABLE) {
+    setExportStatus(`Ready to export ${selectedResolutions.length} file(s) as a ZIP.`);
+  } else {
+    setExportStatus(`Ready to export ${selectedResolutions.length} file(s).`);
+  }
+
+  syncOverlayToExportSize();
+  updateOverlayVisibility();
+}
+
+async function exportZip(files, dateTag) {
+  const zip = new window.JSZip();
+  files.forEach((file) => {
+    zip.file(file.filename, file.blob);
+  });
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  downloadBlob(zipBlob, `minimal-gradient-batch-${dateTag}.zip`);
+}
+
+async function exportPngBatch() {
+  const selected = getSelectedResolutions();
+  if (!selected.length) {
+    updateExportUiState();
+    return;
+  }
+
+  exportBtn.disabled = true;
+  const dateTag = new Date().toISOString().slice(0, 10);
+  setExportStatus(`Rendering ${selected.length} export(s)...`);
+
+  const files = [];
+  for (const target of selected) {
+    const blob = await renderResolution(target.width, target.height);
+    if (!blob) {
+      setExportStatus(`Failed rendering ${target.width}×${target.height}.`, 'warning');
+      continue;
+    }
+
+    files.push({
+      blob,
+      filename: createFilename(target.width, target.height, dateTag),
+    });
+  }
+
+  if (!files.length) {
+    setExportStatus('No files were exported due to render failures.', 'warning');
+    updateExportUiState();
+    return;
+  }
+
+  if (zipToggle.checked && ZIP_LIB_AVAILABLE) {
+    await exportZip(files, dateTag);
+    setExportStatus(`Downloaded ZIP with ${files.length} PNG file(s).`);
+  } else {
+    files.forEach((file, index) => {
+      setTimeout(() => downloadBlob(file.blob, file.filename), index * 150);
+    });
+    setExportStatus(`Downloaded ${files.length} PNG file(s) sequentially.`);
+  }
+
+  updateExportUiState();
 }
 
 [gradientType, angle].forEach((el) => {
@@ -344,29 +474,23 @@ swapBtn.addEventListener('click', () => {
   renderPreview();
 });
 
-exportSize.addEventListener('change', () => {
-  customSizeControls.classList.toggle('hidden', exportSize.value !== 'custom');
-  syncOverlayToExportSize();
-  updateOverlayVisibility();
-});
-
+exportTargets.addEventListener('change', updateExportUiState);
 [customWidth, customHeight].forEach((input) => {
-  input.addEventListener('input', () => {
-    if (exportSize.value !== 'custom') {
-      return;
-    }
-
-    syncOverlayToExportSize();
-    updateOverlayVisibility();
-  });
+  input.addEventListener('input', updateExportUiState);
 });
+zipToggle.addEventListener('change', updateExportUiState);
 
 overlayProfile.addEventListener('change', applyOverlaySelection);
 overlayToggle.addEventListener('change', updateOverlayVisibility);
 
-exportBtn.addEventListener('click', exportPng);
+exportBtn.addEventListener('click', exportPngBatch);
+
+if (!ZIP_LIB_AVAILABLE) {
+  zipToggle.checked = false;
+  zipToggle.disabled = true;
+}
 
 renderStopControls();
-syncOverlayToExportSize();
+updateExportUiState();
 applyOverlaySelection();
 renderPreview();
