@@ -16,6 +16,12 @@
 
         <div class="canvas-wrap">
           <canvas id="previewCanvas" width="1290" height="2796" aria-label="Gradient preview canvas"></canvas>
+          <div id="previewOverlay" class="preview-overlay hidden" aria-hidden="true">
+            <div class="status-zone"></div>
+            <div class="notch-mask"></div>
+            <div class="safe-zone safe-zone-top"></div>
+            <div class="safe-zone safe-zone-bottom"></div>
+          </div>
         </div>
 
         <div class="quick-actions">
@@ -65,6 +71,21 @@
             <option value="1080x2400">Android FHD+ — 1080×2400</option>
             <option value="custom">Custom</option>
           </select>
+        </div>
+
+        <div class="control-group">
+          <label for="overlayProfile">Preview Overlay</label>
+          <select id="overlayProfile">
+            <option value="none">None</option>
+            <option value="iphone-pro-max">iPhone Pro Max</option>
+            <option value="iphone-pro">iPhone Pro</option>
+            <option value="android-tall">Android Tall Display</option>
+          </select>
+        </div>
+
+        <div class="control-group inline-control">
+          <label for="overlayToggle">Show overlay guides</label>
+          <input id="overlayToggle" type="checkbox" checked />
         </div>
 
         <div id="customSizeControls" class="custom-size hidden" aria-live="polite">

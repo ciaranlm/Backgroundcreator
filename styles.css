@@ -53,12 +53,105 @@ body {
   aspect-ratio: 9/19.5;
   width: min(100%, 430px);
   background: #0f172a;
+  position: relative;
 }
 
 canvas {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.preview-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --status-height: 6%;
+  --notch-width: 36%;
+  --notch-height: 4.2%;
+  --safe-top: 10%;
+  --safe-bottom: 7%;
+}
+
+.status-zone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--status-height);
+  border-bottom: 1px dashed rgb(255 255 255 / 0.45);
+  background: rgb(2 6 23 / 0.18);
+}
+
+.notch-mask {
+  position: absolute;
+  left: 50%;
+  top: 1.1%;
+  transform: translateX(-50%);
+  width: var(--notch-width);
+  height: var(--notch-height);
+  border-radius: 0 0 18px 18px;
+  border: 1px solid rgb(255 255 255 / 0.5);
+  border-top: 0;
+  background: rgb(15 23 42 / 0.45);
+}
+
+.safe-zone {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  border: 1px dashed rgb(147 197 253 / 0.8);
+  border-radius: 10px;
+}
+
+.safe-zone-top {
+  top: var(--safe-top);
+  height: 15%;
+}
+
+.safe-zone-bottom {
+  bottom: var(--safe-bottom);
+  height: 15%;
+}
+
+.preview-overlay[data-profile='iphone-pro-max'] {
+  --status-height: 6%;
+  --notch-width: 36%;
+  --notch-height: 4.2%;
+  --safe-top: 10%;
+  --safe-bottom: 6.5%;
+}
+
+.preview-overlay[data-profile='iphone-pro'] {
+  --status-height: 6%;
+  --notch-width: 34%;
+  --notch-height: 4%;
+  --safe-top: 10%;
+  --safe-bottom: 6.5%;
+}
+
+.preview-overlay[data-profile='android-tall'] {
+  --status-height: 5%;
+  --notch-width: 20%;
+  --notch-height: 2.8%;
+  --safe-top: 8.4%;
+  --safe-bottom: 5.2%;
+}
+
+.preview-overlay[data-profile='android-tall'] .notch-mask {
+  border-radius: 12px;
+}
+
+.inline-control {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.inline-control input[type='checkbox'] {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--accent);
+  padding: 0;
 }
 
 .quick-actions {
