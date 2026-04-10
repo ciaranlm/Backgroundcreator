@@ -114,10 +114,21 @@ button.export {
   min-height: 2.8rem;
 }
 
-.color-grid {
+.stops-list {
   display: grid;
-  gap: 0.6rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.stop-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.stop-row label {
+  display: grid;
+  gap: 0.2rem;
 }
 
 .custom-size {
@@ -138,5 +149,9 @@ button.export {
   .canvas-wrap {
     width: 100%;
     max-width: 480px;
+  }
+
+  .stop-row {
+    grid-template-columns: 1fr;
   }
 }
