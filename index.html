@@ -39,19 +39,10 @@
           <input id="angle" type="range" min="0" max="360" value="135" />
         </div>
 
-        <div class="color-grid">
-          <div class="control-group">
-            <label for="color1">Color 1</label>
-            <input id="color1" type="color" value="#0f172a" />
-          </div>
-          <div class="control-group">
-            <label for="color2">Color 2</label>
-            <input id="color2" type="color" value="#1d4ed8" />
-          </div>
-          <div class="control-group">
-            <label for="color3">Color 3</label>
-            <input id="color3" type="color" value="#22d3ee" />
-          </div>
+        <div class="control-group">
+          <label>Gradient Stops</label>
+          <div id="stopsContainer" class="stops-list" aria-live="polite"></div>
+          <button id="addStopBtn" type="button" class="secondary">Add Stop</button>
         </div>
 
         <div class="control-group">
