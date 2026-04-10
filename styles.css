@@ -20,11 +20,14 @@ body {
 }
 
 .app-shell {
+  width: min(1360px, 100% - 2rem);
+  margin: 0 auto;
   min-height: 100vh;
-  padding: 1rem;
+  padding: 1rem 0;
   display: grid;
   gap: 1rem;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  align-items: start;
 }
 
 .preview-panel,
@@ -45,30 +48,31 @@ body {
   color: var(--muted);
 }
 
-.canvas-wrap {
-  border-radius: 36px;
-  overflow: hidden;
-  aspect-ratio: 9/19.5;
-  width: min(100%, 430px);
-  background: #0f172a;
-  position: relative;
-}
-
 .preview-stage {
   margin-top: 0.75rem;
-  min-height: 640px;
   border-radius: 18px;
-  background: #c9cbd0;
+  background: linear-gradient(180deg, #d5d7dc, #bcc0c8);
+  border: 1px solid #aeb4bf;
   display: grid;
   place-items: center;
+  padding: clamp(0.65rem, 1vw, 1rem);
 }
 
 .phone-frame {
   border-radius: 42px;
-  padding: 10px;
+  padding: clamp(7px, 1.1vw, 10px);
   background: linear-gradient(155deg, #0f131c, #030507);
   border: 2px solid #1d2433;
   box-shadow: 0 20px 45px rgb(0 0 0 / 0.35), 0 10px 18px rgb(0 0 0 / 0.45);
+}
+
+.canvas-wrap {
+  border-radius: 36px;
+  overflow: hidden;
+  aspect-ratio: 9/19.5;
+  width: min(100%, clamp(270px, 45vw, 430px));
+  background: #0f172a;
+  position: relative;
 }
 
 canvas {
@@ -241,6 +245,7 @@ canvas {
 .quick-actions {
   margin-top: 0.85rem;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
 }
 
@@ -248,13 +253,14 @@ canvas {
   display: grid;
   gap: 0.8rem;
   align-content: start;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
 }
 
 .control-group {
   display: grid;
   gap: 0.3rem;
 }
-
 
 fieldset {
   border: 1px solid var(--border);
@@ -297,7 +303,6 @@ legend {
 .export-status[data-tone='warning'] {
   color: #fbbf24;
 }
-
 
 label {
   font-weight: 600;
@@ -364,16 +369,18 @@ button.export {
 
 @media (max-width: 900px) {
   .app-shell {
+    width: min(920px, 100% - 1rem);
     grid-template-columns: 1fr;
+    padding: 0.5rem 0;
+  }
+
+  .controls-panel {
+    max-height: none;
+    overflow: visible;
   }
 
   .canvas-wrap {
-    width: 100%;
-    max-width: 480px;
-  }
-
-  .preview-stage {
-    min-height: 560px;
+    width: min(100%, 420px);
   }
 
   .stop-row {
