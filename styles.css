@@ -46,14 +46,29 @@ body {
 }
 
 .canvas-wrap {
-  margin-top: 0.75rem;
-  border-radius: 14px;
+  border-radius: 36px;
   overflow: hidden;
-  border: 1px solid var(--border);
   aspect-ratio: 9/19.5;
   width: min(100%, 430px);
   background: #0f172a;
   position: relative;
+}
+
+.preview-stage {
+  margin-top: 0.75rem;
+  min-height: 640px;
+  border-radius: 18px;
+  background: #c9cbd0;
+  display: grid;
+  place-items: center;
+}
+
+.phone-frame {
+  border-radius: 42px;
+  padding: 10px;
+  background: linear-gradient(155deg, #0f131c, #030507);
+  border: 2px solid #1d2433;
+  box-shadow: 0 20px 45px rgb(0 0 0 / 0.35), 0 10px 18px rgb(0 0 0 / 0.45);
 }
 
 canvas {
@@ -66,11 +81,80 @@ canvas {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 3;
   --status-height: 6%;
   --notch-width: 36%;
   --notch-height: 4.2%;
   --safe-top: 10%;
   --safe-bottom: 7%;
+}
+
+.lockscreen-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  color: rgb(236 253 255 / 0.95);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 1.25rem 1rem 0.6rem;
+  pointer-events: none;
+  text-shadow: 0 2px 8px rgb(2 6 23 / 0.45);
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.clock-block {
+  margin-top: 2.1rem;
+  text-align: center;
+}
+
+.clock-block p {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 620;
+}
+
+.clock-block h2 {
+  margin: 0.2rem 0 0;
+  line-height: 0.95;
+  font-size: clamp(4rem, 12vw, 6.6rem);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+}
+
+.bottom-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin: 0 1rem 1.55rem;
+}
+
+.bottom-actions button {
+  border: 0;
+  border-radius: 999px;
+  width: 2.9rem;
+  height: 2.9rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  background: rgb(15 23 42 / 0.55);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+.home-bar {
+  width: 36%;
+  max-width: 150px;
+  height: 0.3rem;
+  border-radius: 999px;
+  margin: 0 auto;
+  background: rgb(255 255 255 / 0.92);
 }
 
 .status-zone {
@@ -286,6 +370,10 @@ button.export {
   .canvas-wrap {
     width: 100%;
     max-width: 480px;
+  }
+
+  .preview-stage {
+    min-height: 560px;
   }
 
   .stop-row {
