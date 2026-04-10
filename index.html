@@ -56,7 +56,18 @@
             <option value="linear">Linear</option>
             <option value="radial">Radial</option>
             <option value="conic">Conic</option>
+            <option value="mesh">Mesh</option>
           </select>
+        </div>
+
+        <div class="control-group mesh-controls">
+          <label for="meshDensity">Mesh Blob Count <span id="meshDensityValue">4</span></label>
+          <input id="meshDensity" type="range" min="3" max="6" value="4" />
+        </div>
+
+        <div class="control-group mesh-controls">
+          <label for="meshSoftness">Mesh Softness <span id="meshSoftnessValue">60%</span></label>
+          <input id="meshSoftness" type="range" min="20" max="100" value="60" />
         </div>
 
         <div class="control-group">
