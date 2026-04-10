@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minimal Gradient Background Creator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="preview-panel">
+        <header>
+          <h1>Background Creator</h1>
+          <p>Create minimalist gradient wallpapers and export for iOS or Android.</p>
+        </header>
+
+        <div class="canvas-wrap">
+          <canvas id="previewCanvas" width="1290" height="2796" aria-label="Gradient preview canvas"></canvas>
+        </div>
+
+        <div class="quick-actions">
+          <button id="randomizeBtn" type="button">Randomize</button>
+          <button id="swapBtn" type="button" class="secondary">Swap Colors</button>
+        </div>
+      </section>
+
+      <section class="controls-panel" aria-label="Background controls">
+        <div class="control-group">
+          <label for="gradientType">Gradient Type</label>
+          <select id="gradientType">
+            <option value="linear">Linear</option>
+            <option value="radial">Radial</option>
+            <option value="conic">Conic</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="angle">Angle <span id="angleValue">135°</span></label>
+          <input id="angle" type="range" min="0" max="360" value="135" />
+        </div>
+
+        <div class="color-grid">
+          <div class="control-group">
+            <label for="color1">Color 1</label>
+            <input id="color1" type="color" value="#0f172a" />
+          </div>
+          <div class="control-group">
+            <label for="color2">Color 2</label>
+            <input id="color2" type="color" value="#1d4ed8" />
+          </div>
+          <div class="control-group">
+            <label for="color3">Color 3</label>
+            <input id="color3" type="color" value="#22d3ee" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="palettePreset">Palette Preset</label>
+          <select id="palettePreset">
+            <option value="custom">Custom</option>
+            <option value="midnight">Midnight</option>
+            <option value="forest">Forest</option>
+            <option value="sunset">Sunset</option>
+            <option value="mono">Monochrome</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="exportSize">Export Target</label>
+          <select id="exportSize">
+            <option value="1290x2796">iOS Pro Max — 1290×2796</option>
+            <option value="1179x2556">iOS Pro — 1179×2556</option>
+            <option value="1440x3200">Android QHD+ — 1440×3200</option>
+            <option value="1080x2400">Android FHD+ — 1080×2400</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+
+        <div id="customSizeControls" class="custom-size hidden" aria-live="polite">
+          <div class="control-group">
+            <label for="customWidth">Custom Width</label>
+            <input id="customWidth" type="number" min="320" max="8000" value="1440" />
+          </div>
+          <div class="control-group">
+            <label for="customHeight">Custom Height</label>
+            <input id="customHeight" type="number" min="320" max="8000" value="3200" />
+          </div>
+        </div>
+
+        <button id="exportBtn" class="export" type="button">Export PNG</button>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
