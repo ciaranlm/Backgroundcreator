@@ -2,6 +2,10 @@ const canvas = document.getElementById('previewCanvas');
 const ctx = canvas.getContext('2d');
 
 const gradientType = document.getElementById('gradientType');
+const meshDensity = document.getElementById('meshDensity');
+const meshDensityValue = document.getElementById('meshDensityValue');
+const meshSoftness = document.getElementById('meshSoftness');
+const meshSoftnessValue = document.getElementById('meshSoftnessValue');
 const angle = document.getElementById('angle');
 const angleValue = document.getElementById('angleValue');
 const palettePreset = document.getElementById('palettePreset');
@@ -134,9 +138,85 @@ function getGradient(context, width, height) {
   return context.createLinearGradient(x0, y0, x1, y1);
 }
 
+function hashString(value) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function createSeededRandom(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state += 0x6d2b79f5;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function mixHexWithWhite(hexColor, strength) {
+  const amount = clamp(strength, 0, 1);
+  const channels = [1, 3, 5].map((offset) => parseInt(hexColor.slice(offset, offset + 2), 16));
+  const mixed = channels.map((channel) => Math.round(channel + (255 - channel) * amount));
+  return `rgb(${mixed[0]} ${mixed[1]} ${mixed[2]})`;
+}
+
+function hexToRgbChannels(hexColor) {
+  const channels = [1, 3, 5].map((offset) => parseInt(hexColor.slice(offset, offset + 2), 16));
+  return `${channels[0]} ${channels[1]} ${channels[2]}`;
+}
+
+function drawMeshGradient(context, width, height, stops) {
+  const sortedStops = normalizeStops(stops);
+  const colors = sortedStops.map((stop) => stop.color);
+  const count = clamp(Number(meshDensity.value) || 4, 3, 6);
+  const softness = clamp(Number(meshSoftness.value) || 60, 20, 100) / 100;
+  const minDimension = Math.min(width, height);
+  const seedSource = [
+    width,
+    height,
+    count,
+    softness.toFixed(2),
+    colors.join('-'),
+  ].join('|');
+  const random = createSeededRandom(hashString(seedSource));
+
+  context.fillStyle = colors[0] || '#0f172a';
+  context.fillRect(0, 0, width, height);
+
+  for (let index = 0; index < count; index += 1) {
+    const color = colors[index % colors.length];
+    const centerX = width * (0.2 + random() * 0.6);
+    const centerY = height * (0.18 + random() * 0.64);
+    const radius = minDimension * (0.3 + random() * 0.38);
+    const alphaBase = 0.09 + (1 - softness) * 0.06;
+    const alpha = clamp(alphaBase + random() * 0.08, 0.08, 0.24);
+    const highlight = mixHexWithWhite(color, softness * 0.22);
+    const edge = mixHexWithWhite(color, 0.45 + softness * 0.2);
+    const mid = hexToRgbChannels(color);
+    const gradient = context.createRadialGradient(centerX, centerY, radius * 0.08, centerX, centerY, radius);
+    gradient.addColorStop(0, highlight.replace(')', ` / ${alpha})`));
+    gradient.addColorStop(0.7, `rgb(${mid} / ${alpha * 0.55})`);
+    gradient.addColorStop(1, edge.replace(')', ' / 0)'));
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, width, height);
+  }
+}
+
 function drawGradient(context, width, height) {
-  const gradient = getGradient(context, width, height);
   const sortedStops = normalizeStops(gradientStops);
+
+  if (gradientType.value === 'mesh') {
+    drawMeshGradient(context, width, height, sortedStops);
+    return;
+  }
+
+  const gradient = getGradient(context, width, height);
 
   sortedStops.forEach((stop) => {
     gradient.addColorStop(stop.position, stop.color);
@@ -173,6 +253,11 @@ function renderStopControls() {
 
 function renderPreview() {
   drawGradient(ctx, canvas.width, canvas.height);
+}
+
+function updateMeshControlLabels() {
+  meshDensityValue.textContent = String(clamp(Number(meshDensity.value), 3, 6));
+  meshSoftnessValue.textContent = `${clamp(Number(meshSoftness.value), 20, 100)}%`;
 }
 
 function setStops(stops) {
@@ -388,9 +473,10 @@ async function exportPngBatch() {
   updateExportUiState();
 }
 
-[gradientType, angle].forEach((el) => {
+[gradientType, angle, meshDensity, meshSoftness].forEach((el) => {
   el.addEventListener('input', () => {
     angleValue.textContent = `${angle.value}°`;
+    updateMeshControlLabels();
     palettePreset.value = 'custom';
     renderPreview();
   });
@@ -493,4 +579,5 @@ if (!ZIP_LIB_AVAILABLE) {
 renderStopControls();
 updateExportUiState();
 applyOverlaySelection();
+updateMeshControlLabels();
 renderPreview();

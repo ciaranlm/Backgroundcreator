@@ -171,6 +171,11 @@ canvas {
   gap: 0.3rem;
 }
 
+.mesh-controls label span {
+  color: var(--muted);
+  font-weight: 500;
+}
+
 
 fieldset {
   border: 1px solid var(--border);
