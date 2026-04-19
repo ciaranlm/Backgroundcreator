@@ -20,6 +20,7 @@ const addStopBtn = document.getElementById('addStopBtn');
 const overlayProfile = document.getElementById('overlayProfile');
 const overlayToggle = document.getElementById('overlayToggle');
 const previewOverlay = document.getElementById('previewOverlay');
+const canvasWrap = document.querySelector('.canvas-wrap');
 
 const randomizeBtn = document.getElementById('randomizeBtn');
 const swapBtn = document.getElementById('swapBtn');
@@ -255,6 +256,22 @@ function renderPreview() {
   drawGradient(ctx, canvas.width, canvas.height);
 }
 
+function syncPreviewSizeToPrimaryTarget() {
+  const resolutions = getSelectedResolutions();
+  const primary = resolutions[0] || EXPORT_PRESETS['1290x2796'];
+
+  if (canvas.width !== primary.width || canvas.height !== primary.height) {
+    canvas.width = primary.width;
+    canvas.height = primary.height;
+  }
+
+  if (canvasWrap) {
+    canvasWrap.style.aspectRatio = `${primary.width} / ${primary.height}`;
+  }
+
+  renderPreview();
+}
+
 function updateMeshControlLabels() {
   meshDensityValue.textContent = String(clamp(Number(meshDensity.value), 3, 6));
   meshSoftnessValue.textContent = `${clamp(Number(meshSoftness.value), 20, 100)}%`;
@@ -417,6 +434,7 @@ function updateExportUiState() {
 
   syncOverlayToExportSize();
   updateOverlayVisibility();
+  syncPreviewSizeToPrimaryTarget();
 }
 
 async function exportZip(files, dateTag) {
